@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBo
 from PySide6.QtSql import QSqlDatabase, QSqlQueryModel
 from PySide6.QtCore import Qt
 from PySide6.QtUiTools import QUiLoader
+from PySide6.QtGui import QIcon
 import sys
 import sqlite3
 import csv
@@ -29,25 +30,36 @@ class MaterialDataModel():
         )''')
         self.conn.commit()            
 
-    def load_csv2db(self,csv_file):
+    def load_csv2db(self, csv_file):
         conn = sqlite3.connect(self.db_file, timeout=30)
         conn.execute('PRAGMA journal_mode=WAL')  
         cursor = conn.cursor()     
-        with open(csv_file, 'r', encoding='gbk') as cf:
-            csvreader = csv.reader(cf)
-            next(csvreader)  # 跳过标题行
-            try:
+        try:
+            with open(csv_file, 'r', encoding='gbk') as cf:
+                csvreader = csv.reader(cf)
+                next(csvreader)  # 跳过标题行
                 for row in csvreader:         
                     self.cursor.execute("""
                     INSERT OR IGNORE INTO information_price    
-                        (serial_number, name, specification, unit, price_excluding_tax, note,area, materail_date,period, major)        
+                        (serial_number, name, specification, unit, price_excluding_tax, note, area, materail_date, period, major)        
                     VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", row)
                 self.conn.commit()
-            except Exception as e:
+        except UnicodeDecodeError:
+            try:
+                with open(csv_file, 'r', encoding='utf-8') as cf:
+                    csvreader = csv.reader(cf)
+                    next(csvreader)  # 跳过标题行
+                    for row in csvreader:         
+                        self.cursor.execute("""
+                        INSERT OR IGNORE INTO information_price    
+                            (serial_number, name, specification, unit, price_excluding_tax, note, area, materail_date, period, major)        
+                        VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", row)
+                    self.conn.commit()
+            except UnicodeDecodeError as e:
                 self.conn.rollback()
                 raise e
-            finally:
-                conn.close()
+        finally:
+            conn.close()
     def close_connection(self):
         self.conn.close()
     def query(self, query):
@@ -58,13 +70,15 @@ uiLoader = QUiLoader()
 class MyMainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        # self.setWindowTitle("价格助手")
+        self.setWindowTitle("价格助手")   #设置软件名称
         self.setGeometry(100, 50, 1100, 800)    #setGeometry方法的参数分别是窗口的x坐标、y坐标、宽度和高度。
       
         self.model = MaterialDataModel("materials.db")
         self.model.create_table()
         # 使用 QUiLoader 加载 UI
         self.ui = uiLoader.load('mainwindow.ui', self)
+        # 设置标题栏图标
+        self.setWindowIcon(QIcon('image/app_icon.png'))  # 替换为你的图标路径
         # 连接到 SQLite 数据库
         self.db = QSqlDatabase.addDatabase("QSQLITE")
         self.db.setDatabaseName("materials.db")
@@ -142,7 +156,7 @@ class MyMainWindow(QMainWindow):
                 with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
                     csvwriter = csv.writer(csvfile)
                     # 写入表头
-                    headers = ["序号", "材料名称", "规格型号", "单位", "不含税价", "备注","地区","发布时间", "期数", "专业"]
+                    headers = ["序号", "名称", "规格型号", "单位", "不含税价", "备注","地区","发布时间", "类别", "专业"]
                     csvwriter.writerow(headers)
                     # 写入数据
                     csvwriter.writerows(data)
@@ -167,7 +181,7 @@ class MyMainWindow(QMainWindow):
                 with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
                     csvwriter = csv.writer(csvfile)
                     # 写入表头
-                    headers = ["序号", "材料名称", "规格型号", "单位", "不含税价", "备注","地区","发布时间", "期数", "专业"]
+                    headers = ["序号", "名称", "规格型号", "单位", "不含税价", "备注","地区","发布时间", "类别", "专业"]
                     csvwriter.writerow(headers)
                     # 写入数据
                     csvwriter.writerows(data)
@@ -180,7 +194,7 @@ class MyMainWindow(QMainWindow):
         self.search_material()
     def reset_query(self):
         # 设置界面初始显示
-        query_start = f"SELECT serial_number 序号, name 材料名称, specification 规格型号, unit 单位, price_excluding_tax 不含税价, note 备注,area 地区,materail_date 发布时间, period 期数 , major 专业 FROM information_price WHERE 1=1"
+        query_start = f"SELECT serial_number 序号, name 名称, specification 规格型号, unit 单位, price_excluding_tax 不含税价, note 备注,area 地区,materail_date 发布时间, period 类别 , major 专业 FROM information_price WHERE 1=1"
         # 初始每页条数
         self.current_page=1
         self.items_per_page = 500
@@ -220,19 +234,19 @@ class MyMainWindow(QMainWindow):
 
         area_major_condition = []
         if checkBox_gushi_house_checked:
-            area_major_condition.append(f"area = '固始' AND major = '房建' AND period = '{gushi_house_period}'")
+            area_major_condition.append(f"period = '{gushi_house_period}'")
         if checkBox_xinyang_house_checked:
-            area_major_condition.append(f"area = '信阳' AND major = '房建' AND period = '{xinyang_house_period}'")
+            area_major_condition.append(f"period = '{xinyang_house_period}'")
         if checkBox_zhengzhou_house_month_checked:
-            area_major_condition.append(f"area = '郑州' AND major = '房建' AND period = '{zhengzhou_house_mperiod}'")
+            area_major_condition.append(f"period = '{zhengzhou_house_mperiod}'")
         if checkBox_zhengzhou_house_quarter_checked:
-            area_major_condition.append(f"area = '郑州' AND major = '房建' AND period = '{zhengzhou_house_qperiod}'")
+            area_major_condition.append(f"period = '{zhengzhou_house_qperiod}'")
         if checkBox_xinyang_road_checked:
-            area_major_condition.append(f"area = '信阳' AND major = '公路' AND period = '{xinyang_road_period}'")
+            area_major_condition.append(f"period = '{xinyang_road_period}'")
         if checkBox_zhengzhou_road_checked:
-            area_major_condition.append(f"area = '郑州' AND major = '公路' AND period = '{zhengzhou_road_period}'")
+            area_major_condition.append(f"period = '{zhengzhou_road_period}'")
         if checkBox_personal_data_checked:
-            area_major_condition.append("period = '私有'")
+            area_major_condition.append("period = '专有'")
         # 从界面控件获取查询参数
         material_keywords = self.ui.lineEdit.text().strip().split()
         period_keywords = self.ui.lineEdit_period_keywords.text().strip().split() 
@@ -243,7 +257,7 @@ class MyMainWindow(QMainWindow):
             material_conditions = []
             for keyword in material_keywords:
                 material_conditions.append(f"(name LIKE '%{keyword}%' OR specification LIKE '%{keyword}%')")
-            where_clause_parts.append("(" + " AND ".join(material_conditions) + ")")  #搜索材料名称、项目特征关键词
+            where_clause_parts.append("(" + " AND ".join(material_conditions) + ")")  #搜索名称、项目特征关键词
         if period_keywords:
             period_conditions = []
             for period_keyword in period_keywords:
@@ -257,8 +271,8 @@ class MyMainWindow(QMainWindow):
         where_clause = self.build_where_clause()
         offset_value = (self.current_page - 1) * self.items_per_page
         query = f"""
-            SELECT serial_number 序号, name 材料名称, specification 规格型号, unit 单位, 
-                   price_excluding_tax 不含税价, note 备注, area 地区,materail_date 发布时间,period 期数, major 专业 
+            SELECT serial_number 序号, name 名称, specification 规格型号, unit 单位, 
+                   price_excluding_tax 不含税价, note 备注, area 地区,materail_date 发布时间,period 类别, major 专业 
             FROM information_price 
             WHERE {where_clause} 
             LIMIT {self.items_per_page} OFFSET {offset_value}

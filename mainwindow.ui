@@ -130,12 +130,12 @@ QGroupBox::title {
             </property>
             <item>
              <property name="text">
-              <string>固始2024年第2期</string>
+              <string>固始2024年第2期信息价</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>固始2024年第1期</string>
+              <string>固始2024年第1期信息价</string>
              </property>
             </item>
            </widget>
@@ -173,7 +173,7 @@ QGroupBox::title {
             </property>
             <item>
              <property name="text">
-              <string>信阳2024年第1期</string>
+              <string>信阳2024年第1期信息价</string>
              </property>
             </item>
            </widget>
@@ -211,7 +211,12 @@ QGroupBox::title {
             </property>
             <item>
              <property name="text">
-              <string>郑州2024年3月</string>
+              <string>郑州2024年4月信息价</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>郑州2024年3月信息价</string>
              </property>
             </item>
            </widget>
@@ -249,7 +254,12 @@ QGroupBox::title {
             </property>
             <item>
              <property name="text">
-              <string>郑州2024年1季度</string>
+              <string>郑州2024年1季度信息价</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>郑州2023年4季度信息价</string>
              </property>
             </item>
            </widget>
@@ -290,7 +300,7 @@ QGroupBox::title {
             </property>
             <item>
              <property name="text">
-              <string>信阳公路2024年3月</string>
+              <string>信阳公路2024年4月信息价</string>
              </property>
             </item>
            </widget>
@@ -331,7 +341,7 @@ QGroupBox::title {
             </property>
             <item>
              <property name="text">
-              <string>郑州公路2024年3月</string>
+              <string>郑州公路2024年4月信息价</string>
              </property>
             </item>
            </widget>
@@ -363,9 +373,9 @@ QGroupBox::title {
        </property>
        <property name="font">
         <font>
-         <family>微软雅黑</family>
+         <family>微软雅黑 Light</family>
          <pointsize>12</pointsize>
-         <bold>false</bold>
+         <bold>true</bold>
          <stylestrategy>PreferDefault</stylestrategy>
          <kerning>true</kerning>
         </font>
@@ -385,7 +395,7 @@ QGroupBox::title {
 </string>
        </property>
        <property name="title">
-        <string>私有数据</string>
+        <string>专有数据</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -468,7 +478,7 @@ QGroupBox::title {
            </font>
           </property>
           <property name="text">
-           <string>私有数据</string>
+           <string>专有数据</string>
           </property>
          </widget>
         </item>
@@ -528,7 +538,7 @@ QGroupBox::title {
 }</string>
        </property>
        <property name="placeholderText">
-        <string>地区期数</string>
+        <string>地区期数/类别</string>
        </property>
       </widget>
      </item>
@@ -582,7 +592,7 @@ QGroupBox::title {
         <set>Qt::AlignmentFlag::AlignCenter</set>
        </property>
        <property name="placeholderText">
-        <string>名称   特征</string>
+        <string>名称   规格</string>
        </property>
       </widget>
      </item>
@@ -808,7 +818,7 @@ QGroupBox::title {
     </layout>
    </item>
   </layout>
-  <zorder></zorder>
+  <zorder>horizontalSpacer_7</zorder>
   <zorder>horizontalSpacer_3</zorder>
   <zorder></zorder>
  </widget>
