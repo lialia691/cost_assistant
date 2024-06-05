@@ -1,1 +1,2 @@
 优化方向:增加ai界面
+ nuitka --standalone --windows-disable-console --mingw64 --nofollow-imports --show-memory --show-progress --enable-plugin=pyside6 --include-data-files=mainwindow.ui=mainwindow.ui --include-data-files=image/app_icon.png=image/app_icon.png --include-data-files=materials.db=materials.db --output-dir=o main.py
