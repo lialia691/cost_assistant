@@ -6,6 +6,8 @@ from PySide6.QtGui import QIcon
 import sys
 import sqlite3
 import csv
+
+from mainwindow import Ui_MainWindow
 class MaterialDataModel():
     def __init__(self, db_file):
         self.db_file = db_file
@@ -66,17 +68,16 @@ class MaterialDataModel():
         self.cursor.execute(query)
         return self.cursor.fetchall()
 
-uiLoader = QUiLoader()
+
 class MyMainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("价格助手")   #设置软件名称
+        self.ui=Ui_MainWindow()
+        self.ui.setupUi(self)
+        self.setWindowTitle("造价助手1.0")   #设置软件名称
         self.setGeometry(100, 50, 1100, 800)    #setGeometry方法的参数分别是窗口的x坐标、y坐标、宽度和高度。
-      
         self.model = MaterialDataModel("materials.db")
         self.model.create_table()
-        # 使用 QUiLoader 加载 UI
-        self.ui = uiLoader.load('mainwindow.ui', self)
         # 设置标题栏图标
         self.setWindowIcon(QIcon('image/app_icon.png'))  # 替换为你的图标路径
         # 连接到 SQLite 数据库
@@ -87,6 +88,18 @@ class MyMainWindow(QMainWindow):
         self.query_model  = QSqlQueryModel(self)  
         # 将模型设置到 TableView
         self.ui.tableView.setModel(self.query_model) 
+        # 显示表头
+        headers = ["序号", "名称", "规格型号", "单位", "不含税价", "备注", "地区", "发布时间", "类别", "专业"]
+        self.query_model.setHeaderData(0, Qt.Horizontal, headers[0])
+        self.query_model.setHeaderData(1, Qt.Horizontal, headers[1])
+        self.query_model.setHeaderData(2, Qt.Horizontal, headers[2])
+        self.query_model.setHeaderData(3, Qt.Horizontal, headers[3])
+        self.query_model.setHeaderData(4, Qt.Horizontal, headers[4])
+        self.query_model.setHeaderData(5, Qt.Horizontal, headers[5])
+        self.query_model.setHeaderData(6, Qt.Horizontal, headers[6])
+        self.query_model.setHeaderData(7, Qt.Horizontal, headers[7])
+        self.query_model.setHeaderData(8, Qt.Horizontal, headers[8])
+        self.query_model.setHeaderData(9, Qt.Horizontal, headers[9])
         # 添加多选框信号和槽连接
         self.ui.checkBox_gushi_house.stateChanged.connect(self.search_material) 
         self.ui.checkBox_xinyang_house.stateChanged.connect(self.search_material)
@@ -109,14 +122,15 @@ class MyMainWindow(QMainWindow):
         self.ui.pushButton.clicked.connect(lambda:self.search_material(reset_page=True))
         # 连接首页按钮的点击事件
         self.ui.pushButton_home.clicked.connect(self.go_to_first_page)
-        # self.reset_query()       
-        # self.search_material()
         # 连接导入数据按钮的点击事件
         self.ui.pushButton_import.clicked.connect(self.import_data)
         # 连接导出数据按钮的点击事件
         self.ui.pushButton_export.clicked.connect(self.export_data)
         # 连接导出所有数据按钮的点击事件
         self.ui.pushButton_export_all.clicked.connect(self.export_all_data)
+        # 添加价格目录按钮
+        self.ui.pushButton_price_catalog.clicked.connect(self.show_price_catalog)
+
         self.reset_query()
         self.search_material()
     def import_data(self):
@@ -282,11 +296,24 @@ class MyMainWindow(QMainWindow):
         self.ui.label_total_records.setText(f"总记录数: {total_records}")
         self.ui.label_current_page.setText(f"当前页: {self.current_page}") 
                                      
-   
+#----------------------------------------------------------------------------
+#添加价格目录
+    def show_price_catalog(self):
+        query = "SELECT DISTINCT area, period, materail_date FROM information_price ORDER BY area"
+        self.model.cursor.execute(query)
+        results = self.model.cursor.fetchall()
+        details = [f"{area}: {period} - {materail_date}" for area, period, materail_date in results]
+        QMessageBox.information(self, "价格目录", "\n".join(details))
 
         
 if __name__ == "__main__":
     app = QApplication([])
+    #app.setStyle('Fusion')  # 设置为最新的 Windows 风格
+    #app.setStyle('Windows')  # 设置为 Windows 风格
+    app.setStyle('WindowsVista')  # 设置为 Windows Vista 风格
+    # app.setStyle('WindowsXP')  # 设置为 Windows XP 风格
+    # app.setStyle('Plastique')  # 设置为 Plastique 风格
+    # app.setStyle('Cleanlooks')  # 设置为 Cleanlooks 风格
     window =MyMainWindow()
     window.show()
     sys.exit(app.exec())
