@@ -7,7 +7,7 @@ import sys
 import sqlite3
 import csv
 import json
-import xml.etree.ElementTree as ET
+from lxml import etree as ET
 
 from mainwindow import Ui_MainWindow
 class MaterialDataModel():
@@ -155,7 +155,7 @@ class MyMainWindow(QMainWindow):
         super().__init__()
         self.ui=Ui_MainWindow()
         self.ui.setupUi(self)
-        self.setWindowTitle("造价助手1.1")   #设置软件名称
+        self.setWindowTitle("造价助手1.2")   #设置软件名称
         self.setGeometry(100, 50, 1100, 800)    #setGeometry方法的参数分别是窗口的x坐标、y坐标、宽度和高度。
         # 创建数据库模型
         self.dtmodel = MaterialDataModel("materials.db")
@@ -346,7 +346,7 @@ class MyMainWindow(QMainWindow):
                 with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
                     csvwriter = csv.writer(csvfile)
                     # 写入表头
-                    headers = ["序号", "名称", "规格型号", "单位", "不含税价", "备注","地区","发布时间", "类别", "专业"]
+                    headers = ["ID","序号", "名称", "规格型号", "单位", "不含税价", "备注","地区","发布时间", "类别", "专业"]
                     csvwriter.writerow(headers)
                     # 写入数据
                     csvwriter.writerows(data)
@@ -371,7 +371,7 @@ class MyMainWindow(QMainWindow):
                 with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
                     csvwriter = csv.writer(csvfile)
                     # 写入表头
-                    headers = ["序号", "名称", "规格型号", "单位", "不含税价", "备注","地区","发布时间", "类别", "专业"]
+                    headers = ["ID","序号", "名称", "规格型号", "单位", "不含税价", "备注","地区","发布时间", "类别", "专业"]
                     csvwriter.writerow(headers)
                     # 写入数据
                     csvwriter.writerows(data)
