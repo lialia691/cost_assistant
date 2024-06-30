@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>932</width>
-    <height>741</height>
+    <width>750</width>
+    <height>594</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -147,6 +147,9 @@ QGroupBox::title {
     padding: 3px;
 }</string>
              </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
              <item>
               <property name="text">
                <string>固始2024年第2期信息价</string>
@@ -190,6 +193,9 @@ QGroupBox::title {
     padding: 3px;
 }</string>
              </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
              <item>
               <property name="text">
                <string>信阳2024年第1期信息价</string>
@@ -227,6 +233,9 @@ QGroupBox::title {
     border: 1px solid lightgrey;
     padding: 3px;
 }</string>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
              </property>
              <item>
               <property name="text">
@@ -270,6 +279,9 @@ QGroupBox::title {
     border: 1px solid lightgrey;
     padding: 3px;
 }</string>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
              </property>
              <item>
               <property name="text">
@@ -317,6 +329,9 @@ QGroupBox::title {
     padding: 3px;
 }</string>
              </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
              <item>
               <property name="text">
                <string>信阳公路2024年4月信息价</string>
@@ -358,11 +373,80 @@ QGroupBox::title {
     padding: 3px;
 }</string>
              </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
              <item>
               <property name="text">
                <string>郑州公路2024年4月信息价</string>
               </property>
              </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_10">
+           <item>
+            <widget class="QCheckBox" name="checkBox_other1">
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>其他地区1</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboBox_other1">
+             <property name="styleSheet">
+              <string notr="true">QComboBox {
+    border: 1px solid lightgrey;
+    padding: 3px;
+}</string>
+             </property>
+             <property name="currentText">
+              <string/>
+             </property>
+             <property name="placeholderText">
+              <string>可添加</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_11">
+           <item>
+            <widget class="QCheckBox" name="checkBox_other2">
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>其他地区2</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboBox_other2">
+             <property name="styleSheet">
+              <string notr="true">QComboBox {
+    border: 1px solid lightgrey;
+    padding: 3px;
+}</string>
+             </property>
+             <property name="currentText">
+              <string/>
+             </property>
+             <property name="placeholderText">
+              <string>可添加</string>
+             </property>
             </widget>
            </item>
           </layout>
@@ -613,7 +697,7 @@ QLineEdit:focus {
          <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
         <property name="placeholderText">
-         <string>地区期数/类别</string>
+         <string>类别（可多选）</string>
         </property>
        </widget>
       </item>
@@ -858,6 +942,16 @@ QLineEdit:focus {
        <widget class="QPushButton" name="pushButton_price_catalog">
         <property name="text">
          <string>价格目录</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_clear_partial_data">
+        <property name="text">
+         <string>清除指定数据</string>
+        </property>
+        <property name="icon">
+         <iconset theme="QIcon::ThemeIcon::EditDelete"/>
         </property>
        </widget>
       </item>

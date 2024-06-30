@@ -25,7 +25,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(932, 741)
+        MainWindow.resize(750, 594)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -100,6 +100,7 @@ class Ui_MainWindow(object):
 "    border: 1px solid lightgrey;\n"
 "    padding: 3px;\n"
 "}")
+        self.comboBox_gushi_house_period.setEditable(True)
 
         self.horizontalLayout.addWidget(self.comboBox_gushi_house_period)
 
@@ -124,6 +125,7 @@ class Ui_MainWindow(object):
 "    border: 1px solid lightgrey;\n"
 "    padding: 3px;\n"
 "}")
+        self.comboBox_xinyang_house_period.setEditable(True)
 
         self.horizontalLayout_2.addWidget(self.comboBox_xinyang_house_period)
 
@@ -149,6 +151,7 @@ class Ui_MainWindow(object):
 "    border: 1px solid lightgrey;\n"
 "    padding: 3px;\n"
 "}")
+        self.comboBox_zhengzhou_house_mperiod.setEditable(True)
 
         self.horizontalLayout_5.addWidget(self.comboBox_zhengzhou_house_mperiod)
 
@@ -174,6 +177,7 @@ class Ui_MainWindow(object):
 "    border: 1px solid lightgrey;\n"
 "    padding: 3px;\n"
 "}")
+        self.comboBox_zhengzhou_house_qperiod.setEditable(True)
 
         self.horizontalLayout_6.addWidget(self.comboBox_zhengzhou_house_qperiod)
 
@@ -199,6 +203,7 @@ class Ui_MainWindow(object):
 "    border: 1px solid lightgrey;\n"
 "    padding: 3px;\n"
 "}")
+        self.comboBox_xinyang_road_period.setEditable(True)
 
         self.horizontalLayout_9.addWidget(self.comboBox_xinyang_road_period, 0, Qt.AlignmentFlag.AlignLeft)
 
@@ -224,11 +229,52 @@ class Ui_MainWindow(object):
 "    border: 1px solid lightgrey;\n"
 "    padding: 3px;\n"
 "}")
+        self.comboBox_zhengzhou_road_period.setEditable(True)
 
         self.horizontalLayout_8.addWidget(self.comboBox_zhengzhou_road_period, 0, Qt.AlignmentFlag.AlignLeft)
 
 
         self.verticalLayout.addLayout(self.horizontalLayout_8)
+
+        self.horizontalLayout_10 = QHBoxLayout()
+        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
+        self.checkBox_other1 = QCheckBox(self.groupBox_2)
+        self.checkBox_other1.setObjectName(u"checkBox_other1")
+        self.checkBox_other1.setMaximumSize(QSize(100, 16777215))
+
+        self.horizontalLayout_10.addWidget(self.checkBox_other1)
+
+        self.comboBox_other1 = QComboBox(self.groupBox_2)
+        self.comboBox_other1.setObjectName(u"comboBox_other1")
+        self.comboBox_other1.setStyleSheet(u"QComboBox {\n"
+"    border: 1px solid lightgrey;\n"
+"    padding: 3px;\n"
+"}")
+
+        self.horizontalLayout_10.addWidget(self.comboBox_other1)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout_10)
+
+        self.horizontalLayout_11 = QHBoxLayout()
+        self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
+        self.checkBox_other2 = QCheckBox(self.groupBox_2)
+        self.checkBox_other2.setObjectName(u"checkBox_other2")
+        self.checkBox_other2.setMaximumSize(QSize(100, 16777215))
+
+        self.horizontalLayout_11.addWidget(self.checkBox_other2)
+
+        self.comboBox_other2 = QComboBox(self.groupBox_2)
+        self.comboBox_other2.setObjectName(u"comboBox_other2")
+        self.comboBox_other2.setStyleSheet(u"QComboBox {\n"
+"    border: 1px solid lightgrey;\n"
+"    padding: 3px;\n"
+"}")
+
+        self.horizontalLayout_11.addWidget(self.comboBox_other2)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout_11)
 
 
         self.horizontalLayout_4.addWidget(self.groupBox_2)
@@ -468,6 +514,13 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_7.addWidget(self.pushButton_price_catalog)
 
+        self.pushButton_clear_partial_data = QPushButton(self.centralwidget)
+        self.pushButton_clear_partial_data.setObjectName(u"pushButton_clear_partial_data")
+        icon2 = QIcon(QIcon.fromTheme(u"QIcon::ThemeIcon::EditDelete"))
+        self.pushButton_clear_partial_data.setIcon(icon2)
+
+        self.horizontalLayout_7.addWidget(self.pushButton_clear_partial_data)
+
         self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_7.addItem(self.horizontalSpacer_2)
@@ -509,12 +562,18 @@ class Ui_MainWindow(object):
         self.checkBox_zhengzhou_road.setText(QCoreApplication.translate("MainWindow", u"\u90d1\u5dde\u516c\u8def", None))
         self.comboBox_zhengzhou_road_period.setItemText(0, QCoreApplication.translate("MainWindow", u"\u90d1\u5dde\u516c\u8def2024\u5e744\u6708\u4fe1\u606f\u4ef7", None))
 
+        self.checkBox_other1.setText(QCoreApplication.translate("MainWindow", u"\u5176\u4ed6\u5730\u533a1", None))
+        self.comboBox_other1.setCurrentText("")
+        self.comboBox_other1.setPlaceholderText(QCoreApplication.translate("MainWindow", u"\u53ef\u6dfb\u52a0", None))
+        self.checkBox_other2.setText(QCoreApplication.translate("MainWindow", u"\u5176\u4ed6\u5730\u533a2", None))
+        self.comboBox_other2.setCurrentText("")
+        self.comboBox_other2.setPlaceholderText(QCoreApplication.translate("MainWindow", u"\u53ef\u6dfb\u52a0", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("MainWindow", u"\u4e13\u6709\u6570\u636e", None))
         self.checkBox_personal_data.setText(QCoreApplication.translate("MainWindow", u"\u4e13\u6709\u6570\u636e", None))
         self.pushButton_import.setText(QCoreApplication.translate("MainWindow", u"\u6570\u636e\u5bfc\u5165", None))
         self.pushButton_export.setText(QCoreApplication.translate("MainWindow", u"\u67e5\u8be2\u6570\u636e\u5bfc\u51fa", None))
         self.pushButton_export_all.setText(QCoreApplication.translate("MainWindow", u"\u5168\u90e8\u6570\u636e\u5bfc\u51fa", None))
-        self.lineEdit_period_keywords.setPlaceholderText(QCoreApplication.translate("MainWindow", u"\u5730\u533a\u671f\u6570/\u7c7b\u522b", None))
+        self.lineEdit_period_keywords.setPlaceholderText(QCoreApplication.translate("MainWindow", u"\u7c7b\u522b\uff08\u53ef\u591a\u9009\uff09", None))
         self.lineEdit.setInputMask("")
         self.lineEdit.setPlaceholderText(QCoreApplication.translate("MainWindow", u"\u540d\u79f0   \u89c4\u683c", None))
         self.pushButton.setText("")
@@ -527,5 +586,6 @@ class Ui_MainWindow(object):
         self.pushButton_previous.setText(QCoreApplication.translate("MainWindow", u"\u4e0a\u4e00\u9875", None))
         self.pushButton_home.setText(QCoreApplication.translate("MainWindow", u"\u9996\u9875", None))
         self.pushButton_price_catalog.setText(QCoreApplication.translate("MainWindow", u"\u4ef7\u683c\u76ee\u5f55", None))
+        self.pushButton_clear_partial_data.setText(QCoreApplication.translate("MainWindow", u"\u6e05\u9664\u6307\u5b9a\u6570\u636e", None))
     # retranslateUi
 
