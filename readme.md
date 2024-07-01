@@ -22,3 +22,9 @@
 选择保存位置和文件名。
 所有数据将导出为 CSV 文件。
 
+## 5、下载软件方法!
+1、点击侧边栏的releases处的造价助手标签进入下载页面[第一步](https://github.com/lialia691/cost_assistant/assets/26684027/0a7ededb-1d82-4ac1-bbae-52dffdf72ae1)
+2、点击cost_assistant1.2-x64.rar软件包进行下载。其余两个包为源文件包可不下载。![第二步](https://github.com/lialia691/cost_assistant/assets/26684027/a64a0b40-43e2-4c00-9f12-25b528b1f368)
+3、解压软件包后点击"造价助手.exe"文件，直接运行，无需安装。![第三步](https://github.com/lialia691/cost_assistant/assets/26684027/089eb324-f768-4660-b3ca-3ccbdd6fae75)
+
+
