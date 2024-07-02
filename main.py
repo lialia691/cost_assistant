@@ -8,6 +8,10 @@ import sqlite3
 import csv
 import json
 from lxml import etree as ET
+import pandas as pd
+import chardet
+import logging
+from io import StringIO
 
 from mainwindow import Ui_MainWindow
 class MaterialDataModel():
@@ -30,40 +34,89 @@ class MaterialDataModel():
             materail_date DATE,                
             typeperiod TEXT,
             major TEXT,          
-            UNIQUE(name,specification,area,materail_date, note)
+            UNIQUE(name,specification,area,materail_date, note,typeperiod)
         )''')    ####名称、规格型号、地区、发布时间、备注定字段唯一性
         self.conn.commit()            
 
-    def load_csv2db(self, csv_file):
+    def load_csv2db(self, file_path):
         conn = sqlite3.connect(self.db_file, timeout=30)
-        conn.execute('PRAGMA journal_mode=WAL')  
-        cursor = conn.cursor()     
+        conn.execute('PRAGMA journal_mode=WAL')
+        cursor = conn.cursor()
+        
         try:
-            with open(csv_file, 'r', encoding='gbk') as cf:
-                csvreader = csv.reader(cf)
-                next(csvreader)  # 跳过标题行
-                for row in csvreader:         
-                    self.cursor.execute("""
-                    INSERT OR  REPLACE INTO information_price    
-                        (serial_number, name, specification, unit, price_excluding_tax, note, area, materail_date, typeperiod, major)        
-                    VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", row)
-                self.conn.commit()
-        except UnicodeDecodeError:
-            try:
-                with open(csv_file, 'r', encoding='utf-8') as cf:
-                    csvreader = csv.reader(cf)
-                    next(csvreader)  # 跳过标题行
-                    for row in csvreader:         
-                        self.cursor.execute("""
-                        INSERT OR IGNORE INTO information_price    
-                            (serial_number, name, specification, unit, price_excluding_tax, note, area, materail_date, typeperiod, major)        
-                        VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", row)
-                    self.conn.commit()
-            except UnicodeDecodeError as e:
-                self.conn.rollback()
-                raise e
+            # 自动检测文件编码
+            with open(file_path, 'rb') as f:
+                raw_data = f.read()
+                result = chardet.detect(raw_data)
+                file_encoding = result['encoding']
+            
+            # 尝试多种编码读取文件
+            encodings = [
+            file_encoding, 'utf-8', 'utf-8-sig', 'gb18030', 'gb2312', 'gbk',
+            'big5', 'hz', 'iso-2022-cn', 'utf-16', 'utf-32', 'ascii',
+            'iso-8859-1', 'windows-1252']
+            df = None
+            for encoding in encodings:
+                try:
+                    if file_path.lower().endswith('.csv'):
+                        df = pd.read_csv(StringIO(raw_data.decode(encoding)))
+                    elif file_path.lower().endswith(('.xlsx', '.xls')):
+                        df = pd.read_excel(file_path, engine='openpyxl' if file_path.lower().endswith('.xlsx') else 'xlrd')
+                    break            
+                except Exception as e:
+                    logging.warning(f"使用编码 {encoding} 读取文件失败: {e}")
+            if df is None or df.empty:
+                raise ValueError("无法读取文件或文件为空")
+                # 重命名列
+            column_mapping = {
+                '序号': 'serial_number',
+                '名称': 'name',
+                '规格型号': 'specification',
+                '单位': 'unit',
+                '不含税价': 'price_excluding_tax',
+                '备注': 'note',
+                '地区': 'area',
+                '发布时间': 'materail_date',
+                '类别': 'typeperiod',
+                '专业': 'major'
+            }
+            df.rename(columns=column_mapping, inplace=True)
+
+             # 确保数据类型正确
+            df['materail_date'] = pd.to_datetime(df['materail_date'], errors='coerce', format='mixed')
+            df['materail_date'] = df['materail_date'].dt.strftime('%y-%m-%d')
+            # 开始事务
+            conn.execute('BEGIN TRANSACTION')
+
+             # 准备 INSERT OR REPLACE 语句
+            insert_query = '''
+            INSERT OR REPLACE INTO information_price 
+            (serial_number, name, specification, unit, price_excluding_tax, note, area, materail_date, typeperiod, major)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            '''
+            # 分批插入数据
+            chunk_size = 1000  # 每批处理的行数
+            total_rows = 0
+            for i in range(0, len(df), chunk_size):
+                chunk = df.iloc[i:i+chunk_size]
+                # 批量插入数据
+                data = [tuple(x) for x in chunk.values]
+                cursor.executemany(insert_query, data)
+                total_rows += len(chunk)
+                logging.info(f"已导入 {total_rows} 行数据")
+            # 提交事务  
+            conn.commit()
+            logging.info(f"成功导入 {len(df)} 行数据")
+        except Exception as e:
+            conn.rollback()
+            logging.error(f"导入数据时发生错误: {e}")
+            raise
         finally:
+            cursor.close()
             conn.close()
+
+
+ 
     def close_connection(self):
         self.conn.close()
     def query(self, query):
@@ -77,7 +130,7 @@ class MaterialDataModel():
         query = f'DELETE FROM information_price WHERE {condition}'
         self.cursor.execute(query)
         self.conn.commit()        
-    def load_xml2db(self, xml_file):
+    def load_xml2db(self, xml_file): ####提取的是广联达xml格式
         tree = ET.parse(xml_file)
         root = tree.getroot()        
         project_name = root.attrib['Name']#提取项目名称        
@@ -155,7 +208,7 @@ class MyMainWindow(QMainWindow):
         super().__init__()
         self.ui=Ui_MainWindow()
         self.ui.setupUi(self)
-        self.setWindowTitle("造价助手1.2")   #设置软件名称
+        self.setWindowTitle("造价助手1.3")   #设置软件名称
         self.setGeometry(100, 50, 1100, 800)    #setGeometry方法的参数分别是窗口的x坐标、y坐标、宽度和高度。
         # 创建数据库模型
         self.dtmodel = MaterialDataModel("materials.db")
@@ -308,21 +361,29 @@ class MyMainWindow(QMainWindow):
         # 打开文件对话框选择 CSV 文件
         file_dialog = QFileDialog(self)
         file_dialog.setFileMode(QFileDialog.ExistingFiles)
-        file_dialog.setNameFilter("Data files (*.csv *.xml)")
+        file_dialog.setNameFilter("Data files (*.xlsx *.xls  *.csv *.xml)")
         if file_dialog.exec():
             files = file_dialog.selectedFiles()
-            try:
-                for file in files:
-                    if file.lower().endswith('.csv'):
+            success_count = 0
+            for file in files:
+                try:
+                    if file.lower().endswith(('.csv', '.xlsx', '.xls')):
                         self.dtmodel.load_csv2db(file)
                     elif file.lower().endswith('.xml'):
                         self.dtmodel.load_xml2db(file)
                     else:
                         raise ValueError(f"不支持的格式: {file}")
-                QMessageBox.information(self, "成功", "数据导入成功")
+                    success_count += 1
+                except Exception as e:
+                    logging.error(f"导入文件 {file} 失败: {e}")
+                    QMessageBox.warning(self, "警告", f"导入文件 {file} 失败: {e}")
+
+
+            if success_count > 0:
+                QMessageBox.information(self, "成功", f"成功导入 {success_count} 个文件")
                 self.search_material(reset_page=True)  # 重新加载数据
-            except Exception as e:
-                QMessageBox.critical(self, "错误", f"数据导入失败: {e}")
+            else:
+                QMessageBox.critical(self, "错误", "所有文件导入均失败")
     def export_data(self):
         # 打开文件对话框选择保存位置
         file_dialog = QFileDialog(self)
@@ -333,27 +394,22 @@ class MyMainWindow(QMainWindow):
             file_path = file_dialog.selectedFiles()[0]
             try:
                 # 获取当前查询的数据
-                query = self.query_model.query()
-                query.exec()
-                data = []
-                while query.next():
-                    row = []
-                    for i in range(query.record().count()):
-                        row.append(query.value(i))
-                    data.append(row)
-                
+                query =  self.search_material(return_query=True)  # 假设这个方法返回完整的搜索查询
+                self.dtmodel.cursor.execute(query)
+                data = self.dtmodel.cursor.fetchall()               
                 # 写入 CSV 文件
                 with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
                     csvwriter = csv.writer(csvfile)
                     # 写入表头
-                    headers = ["ID","序号", "名称", "规格型号", "单位", "不含税价", "备注","地区","发布时间", "类别", "专业"]
+                    headers = ["序号", "名称", "规格型号", "单位", "不含税价", "备注","地区","发布时间", "类别", "专业"]
                     csvwriter.writerow(headers)
                     # 写入数据
                     csvwriter.writerows(data)
                 
-                QMessageBox.information(self, "成功", "数据导出成功")
+                QMessageBox.information(self, "成功", f"数据导出成功，共导出 {len(data)} 条记录")
             except Exception as e:
                 QMessageBox.critical(self, "错误", f"数据导出失败: {e}")
+                logging.error(f"数据导出失败: {e}", exc_info=True)
     def export_all_data(self):
         # 打开文件对话框选择保存位置
         file_dialog = QFileDialog(self)
@@ -364,14 +420,14 @@ class MyMainWindow(QMainWindow):
             file_path = file_dialog.selectedFiles()[0]
             try:
                 # 获取所有数据
-                query = "SELECT * FROM information_price"
+                query = "SELECT serial_number, name, specification, unit, price_excluding_tax, note, area, materail_date, typeperiod, major FROM information_price"
                 data = self.dtmodel.query(query)
                 
                 # 写入 CSV 文件
                 with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
                     csvwriter = csv.writer(csvfile)
                     # 写入表头
-                    headers = ["ID","序号", "名称", "规格型号", "单位", "不含税价", "备注","地区","发布时间", "类别", "专业"]
+                    headers = ["序号", "名称", "规格型号", "单位", "不含税价", "备注","地区","发布时间", "类别", "专业"]
                     csvwriter.writerow(headers)
                     # 写入数据
                     csvwriter.writerows(data)
@@ -464,7 +520,7 @@ class MyMainWindow(QMainWindow):
             where_clause_parts.append("(" + " OR ".join( period_conditions) + ")")
         where_clause = " AND ".join(where_clause_parts) if where_clause_parts else "1=1"
         return where_clause 
-    def search_material(self,reset_page=False):
+    def search_material(self,reset_page=False,return_query=False):
         if reset_page:
             self.current_page = 1  # 每次搜索时重置为第一页
         where_clause = self.build_where_clause()
@@ -474,12 +530,15 @@ class MyMainWindow(QMainWindow):
                    price_excluding_tax 不含税价, note 备注, area 地区,materail_date 发布时间,typeperiod 类别, major 专业 
             FROM information_price 
             WHERE {where_clause} 
-            LIMIT {self.items_per_page} OFFSET {offset_value}
+
         """
-        self.query_model.setQuery(query)
-        total_records = self.get_total_records(where_clause)
-        self.ui.label_total_records.setText(f"总记录数: {total_records}")
-        self.ui.label_current_page.setText(f"当前页: {self.current_page}") 
+        if not return_query:
+            query += f" LIMIT {self.items_per_page} OFFSET {offset_value}"
+            self.query_model.setQuery(query)
+            total_records = self.get_total_records(where_clause)
+            self.ui.label_total_records.setText(f"总记录数: {total_records}")
+            self.ui.label_current_page.setText(f"当前页: {self.current_page}")
+        return query if return_query else None
                                      
 #----------------------------------------------------------------------------
 #添加价格目录
